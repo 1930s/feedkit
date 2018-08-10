@@ -46,6 +46,13 @@ create table if not exists record(
   change_tag text
 ) without rowid;
 
+-- Change tokens used by iCloud for tracking changes.
+create table if not exists token(
+  data blob,
+  key text primary key,
+  ts datetime
+) without rowid;
+
 --
 -- Subsets are synchronized with iCloud, hence the record_name column.
 --
