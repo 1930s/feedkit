@@ -11,30 +11,6 @@ import Foundation
 import Skull
 import os.log
 
-// MARK: - Notifications
-
-public extension Notification.Name {
-  
-  /// Posted after the users‘s subscriptions have been changed.
-  public static var FKSubscriptionsDidChange =
-    NSNotification.Name("FeedKitSubscriptionsDidChange")
-  
-  /// Posted after the user‘s queue has been changed.
-  public static var FKQueueDidChange =
-    NSNotification.Name("FeedKitQueueDidChange")
-  
-  /// Posted after a new item has been enqueued to the user‘s queue with the
-  /// notification containing identifying information of the item.
-  public static var FKQueueDidEnqueue =
-    NSNotification.Name("FeedKitQueueDidEnqueue")
-
-  /// Posted after an item has been dequeued from the user‘s queue with the
-  /// notification containing identifying information of the item.
-  public static var FKQueueDidDequeue =
-    NSNotification.Name("FeedKitQueueDidDequeue")
-  
-}
-
 // MARK: - Queueing
 
 /// Cache the user`s queue locally.
@@ -106,9 +82,21 @@ public enum QueueingError: Error {
   case outOfSync(Int, Int)
 }
 
+/// Receives queue changes.
+public protocol QueueDelegate: class {
+
+  func queue(_ queue: Queueing, changed guids: Set<EntryGUID>)
+
+  func queue(_ queue: Queueing, enqueued: EntryGUID, enclosure: Enclosure?)
+
+  func queue(_ queue: Queueing, dequeued: EntryGUID, enclosure: Enclosure?)
+}
+
 /// Coordinates the queue data structure, local persistence, and propagation of
 /// change events regarding the user’s queue.
 public protocol Queueing {
+
+  var queueDelegate: QueueDelegate? { get set }
 
   /// Adds `entries` to the queue, belonging to `owner`.
   func enqueue(
@@ -198,8 +186,17 @@ public protocol SubscriptionCaching {
 
 }
 
+/// Receives library changes.
+public protocol LibraryDelegate: class {
+
+  func library(_ library: Subscribing, changed urls: Set<FeedURL>)
+  
+}
+
 /// Manages the user’s feed subscriptions.
 public protocol Subscribing: Updating {
+
+  var libraryDelegate: LibraryDelegate? { get set }
 
   /// Adds `subscriptions` to the user’s library.
   ///
