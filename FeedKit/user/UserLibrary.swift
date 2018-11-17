@@ -37,8 +37,6 @@ public final class UserLibrary: EntryQueueHost {
     self.cache = cache
     self.browser = browser
     self.operationQueue = queue
-
-    synchronize()
   }
 
   /// Internal serial queue for synchronizing access to shared state.
